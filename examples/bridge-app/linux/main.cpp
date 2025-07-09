@@ -176,8 +176,6 @@ DeviceOnOff ActionLight2("Head Down", "Room 1");
 DeviceOnOff ActionLight3("Bed Up", "Room 2");
 DeviceOnOff ActionLight4("Bed Down", "Room 2");
 
-// Setup composed device with two temperature sensors and a power source
-ComposedDevice gComposedDevice("Composed Device", "Bedroom");
 
 } // namespace
 
@@ -652,8 +650,6 @@ void ApplicationInit()
     ActionLight3.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight4.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
 
-    gComposedDevice.SetReachable(true);
-
     // Set starting endpoint id where dynamic endpoints will be assigned, which
     // will be the next consecutive endpoint id after the last fixed endpoint.
     gFirstDynamicEndpointId = static_cast<chip::EndpointId>(
@@ -691,7 +687,6 @@ void ApplicationInit()
 
     // This provides power for the composed endpoint
     std::vector<chip::EndpointId> endpointList;
-    endpointList.push_back(gComposedDevice.GetEndpointId());
 
     {
         pthread_t poll_thread;
