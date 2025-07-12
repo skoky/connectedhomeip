@@ -25,6 +25,8 @@
 
 #include <string>
 #include <sys/types.h>
+#include <thread>
+#include <chrono>
 
 using namespace chip;
 using namespace chip::app::Clusters::Actions;
@@ -157,6 +159,13 @@ void DeviceOnOff::SetOnOff(bool aOn)
     {
         mChanged_CB(this, kChanged_OnOff);
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	// auto sitch off
+    mOn = false;
+    ChipLogProgress(DeviceLayer, "Device[%s] AUTO: %s", mName, aOn ? "ON" : "OFF");
+    mChanged_CB(this, kChanged_OnOff);
 }
 
 void DeviceOnOff::Toggle()
