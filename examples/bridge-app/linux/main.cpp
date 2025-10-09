@@ -165,14 +165,6 @@ DECLARE_DYNAMIC_CLUSTER(OnOff::Id, onOffAttrs, ZAP_CLUSTER_MASK(SERVER), onOffIn
 
 // Declare Bridged Light endpoint
 DECLARE_DYNAMIC_ENDPOINT(bridgedLightEndpoint, bridgedLightClusters);
-DataVersion gLight1DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
-DataVersion gLight2DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
-
-DeviceOnOff Light1("Light 1", "Office");
-DeviceOnOff Light2("Light 2", "Office");
-
-DeviceTempSensor TempSensor1("TempSensor 1", "Office", minMeasuredValue, maxMeasuredValue, initialMeasuredValue);
-DeviceTempSensor TempSensor2("TempSensor 2", "Office", minMeasuredValue, maxMeasuredValue, initialMeasuredValue);
 
 // Declare Bridged endpoints used for Action clusters
 DataVersion gActionLight1DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
@@ -180,79 +172,11 @@ DataVersion gActionLight2DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight3DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight4DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 
-DeviceOnOff ActionLight1("Action Light 1", "Room 1");
-DeviceOnOff ActionLight2("Action Light 2", "Room 1");
-DeviceOnOff ActionLight3("Action Light 3", "Room 2");
-DeviceOnOff ActionLight4("Action Light 4", "Room 2");
+DeviceOnOff ActionLight1("Nahoru", "Room 1");
+DeviceOnOff ActionLight2("Dolu", "Room 1");
+DeviceOnOff ActionLight3("Postel nahoru", "Room 1");
+DeviceOnOff ActionLight4("Postel dolu", "Room 1");
 
-// Setup composed device with two temperature sensors and a power source
-ComposedDevice gComposedDevice("Composed Device", "Bedroom");
-DeviceTempSensor ComposedTempSensor1("Composed TempSensor 1", "Bedroom", minMeasuredValue, maxMeasuredValue, initialMeasuredValue);
-DeviceTempSensor ComposedTempSensor2("Composed TempSensor 2", "Bedroom", minMeasuredValue, maxMeasuredValue, initialMeasuredValue);
-DevicePowerSource ComposedPowerSource("Composed Power Source", "Bedroom", PowerSource::Feature::kBattery);
-
-Room room1("Room 1", 0xE001, Actions::EndpointListTypeEnum::kRoom, true);
-Room room2("Room 2", 0xE002, Actions::EndpointListTypeEnum::kRoom, true);
-Room room3("Zone 3", 0xE003, Actions::EndpointListTypeEnum::kZone, false);
-
-Action action1(0x1001, "Room 1 On", Actions::ActionTypeEnum::kAutomation, 0xE001, 0x1, Actions::ActionStateEnum::kInactive, true);
-Action action2(0x1002, "Turn On Room 2", Actions::ActionTypeEnum::kAutomation, 0xE002, 0x01, Actions::ActionStateEnum::kInactive,
-               true);
-Action action3(0x1003, "Turn Off Room 1", Actions::ActionTypeEnum::kAutomation, 0xE003, 0x01, Actions::ActionStateEnum::kInactive,
-               false);
-
-DECLARE_DYNAMIC_ATTRIBUTE_LIST_BEGIN(tempSensorAttrs)
-DECLARE_DYNAMIC_ATTRIBUTE(TemperatureMeasurement::Attributes::MeasuredValue::Id, INT16S, 2, 0),        /* Measured Value */
-    DECLARE_DYNAMIC_ATTRIBUTE(TemperatureMeasurement::Attributes::MinMeasuredValue::Id, INT16S, 2, 0), /* Min Measured Value */
-    DECLARE_DYNAMIC_ATTRIBUTE(TemperatureMeasurement::Attributes::MaxMeasuredValue::Id, INT16S, 2, 0), /* Max Measured Value */
-    DECLARE_DYNAMIC_ATTRIBUTE(TemperatureMeasurement::Attributes::FeatureMap::Id, BITMAP32, 4, 0),     /* FeatureMap */
-    DECLARE_DYNAMIC_ATTRIBUTE_LIST_END();
-
-// ---------------------------------------------------------------------------
-//
-// TEMPERATURE SENSOR ENDPOINT: contains the following clusters:
-//   - Temperature measurement
-//   - Descriptor
-//   - Bridged Device Basic Information
-DECLARE_DYNAMIC_CLUSTER_LIST_BEGIN(bridgedTempSensorClusters)
-DECLARE_DYNAMIC_CLUSTER(TemperatureMeasurement::Id, tempSensorAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER(Descriptor::Id, descriptorAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER(BridgedDeviceBasicInformation::Id, bridgedDeviceBasicAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER_LIST_END;
-
-// Declare Bridged Light endpoint
-DECLARE_DYNAMIC_ENDPOINT(bridgedTempSensorEndpoint, bridgedTempSensorClusters);
-DataVersion gTempSensor1DataVersions[MATTER_ARRAY_SIZE(bridgedTempSensorClusters)];
-DataVersion gTempSensor2DataVersions[MATTER_ARRAY_SIZE(bridgedTempSensorClusters)];
-
-// ---------------------------------------------------------------------------
-//
-// COMPOSED DEVICE ENDPOINT: contains the following clusters:
-//   - Descriptor
-//   - Bridged Device Basic Information
-//   - Power source
-
-// Composed Device Configuration
-DECLARE_DYNAMIC_ATTRIBUTE_LIST_BEGIN(powerSourceAttrs)
-DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::BatChargeLevel::Id, ENUM8, 1, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::BatReplacementNeeded::Id, BOOLEAN, 1, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::BatReplaceability::Id, ENUM8, 1, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::Order::Id, INT8U, 1, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::Status::Id, ENUM8, 1, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::Description::Id, CHAR_STRING, 32, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::EndpointList::Id, ARRAY, 0, 0),
-    DECLARE_DYNAMIC_ATTRIBUTE(PowerSource::Attributes::FeatureMap::Id, BITMAP32, 4, 0), DECLARE_DYNAMIC_ATTRIBUTE_LIST_END();
-
-DECLARE_DYNAMIC_CLUSTER_LIST_BEGIN(bridgedComposedDeviceClusters)
-DECLARE_DYNAMIC_CLUSTER(Descriptor::Id, descriptorAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER(BridgedDeviceBasicInformation::Id, bridgedDeviceBasicAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER(PowerSource::Id, powerSourceAttrs, ZAP_CLUSTER_MASK(SERVER), nullptr, nullptr),
-    DECLARE_DYNAMIC_CLUSTER_LIST_END;
-
-DECLARE_DYNAMIC_ENDPOINT(bridgedComposedDeviceEndpoint, bridgedComposedDeviceClusters);
-DataVersion gComposedDeviceDataVersions[MATTER_ARRAY_SIZE(bridgedComposedDeviceClusters)];
-DataVersion gComposedTempSensor1DataVersions[MATTER_ARRAY_SIZE(bridgedTempSensorClusters)];
-DataVersion gComposedTempSensor2DataVersions[MATTER_ARRAY_SIZE(bridgedTempSensorClusters)];
 
 } // namespace
 
@@ -439,43 +363,6 @@ void HandleDeviceOnOffStatusChanged(DeviceOnOff * dev, DeviceOnOff::Changed_t it
     }
 }
 
-void HandleDevicePowerSourceStatusChanged(DevicePowerSource * dev, DevicePowerSource::Changed_t itemChangedMask)
-{
-    using namespace app::Clusters;
-    if (itemChangedMask &
-        (DevicePowerSource::kChanged_Reachable | DevicePowerSource::kChanged_Name | DevicePowerSource::kChanged_Location))
-    {
-        HandleDeviceStatusChanged(static_cast<Device *>(dev), (Device::Changed_t) itemChangedMask);
-    }
-
-    if (itemChangedMask & DevicePowerSource::kChanged_BatLevel)
-    {
-        MatterReportingAttributeChangeCallback(dev->GetEndpointId(), PowerSource::Id, PowerSource::Attributes::BatChargeLevel::Id);
-    }
-
-    if (itemChangedMask & DevicePowerSource::kChanged_Description)
-    {
-        MatterReportingAttributeChangeCallback(dev->GetEndpointId(), PowerSource::Id, PowerSource::Attributes::Description::Id);
-    }
-    if (itemChangedMask & DevicePowerSource::kChanged_EndpointList)
-    {
-        MatterReportingAttributeChangeCallback(dev->GetEndpointId(), PowerSource::Id, PowerSource::Attributes::EndpointList::Id);
-    }
-}
-
-void HandleDeviceTempSensorStatusChanged(DeviceTempSensor * dev, DeviceTempSensor::Changed_t itemChangedMask)
-{
-    if (itemChangedMask &
-        (DeviceTempSensor::kChanged_Reachable | DeviceTempSensor::kChanged_Name | DeviceTempSensor::kChanged_Location))
-    {
-        HandleDeviceStatusChanged(static_cast<Device *>(dev), (Device::Changed_t) itemChangedMask);
-    }
-    if (itemChangedMask & DeviceTempSensor::kChanged_MeasurementValue)
-    {
-        ScheduleReportingCallback(dev, TemperatureMeasurement::Id, TemperatureMeasurement::Attributes::MeasuredValue::Id);
-    }
-}
-
 Protocols::InteractionModel::Status HandleReadBridgedDeviceBasicAttribute(Device * dev, chip::AttributeId attributeId,
                                                                           uint8_t * buffer, uint16_t maxReadLength)
 {
@@ -647,76 +534,10 @@ Protocols::InteractionModel::Status emberAfExternalAttributeReadCallback(Endpoin
         {
             ret = HandleReadOnOffAttribute(static_cast<DeviceOnOff *>(dev), attributeMetadata->attributeId, buffer, maxReadLength);
         }
-        else if (clusterId == TemperatureMeasurement::Id)
-        {
-            ret = HandleReadTempMeasurementAttribute(static_cast<DeviceTempSensor *>(dev), attributeMetadata->attributeId, buffer,
-                                                     maxReadLength);
-        }
     }
 
     return ret;
 }
-
-class BridgedPowerSourceAttrAccess : public AttributeAccessInterface
-{
-public:
-    // Register on all endpoints.
-    BridgedPowerSourceAttrAccess() : AttributeAccessInterface(Optional<EndpointId>::Missing(), PowerSource::Id) {}
-
-    CHIP_ERROR
-    Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override
-    {
-        uint16_t powerSourceDeviceIndex = CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT;
-
-        if ((gDevices[powerSourceDeviceIndex] != nullptr))
-        {
-            DevicePowerSource * dev = static_cast<DevicePowerSource *>(gDevices[powerSourceDeviceIndex]);
-            if (aPath.mEndpointId != dev->GetEndpointId())
-            {
-                return CHIP_IM_GLOBAL_STATUS(UnsupportedEndpoint);
-            }
-            switch (aPath.mAttributeId)
-            {
-            case PowerSource::Attributes::BatChargeLevel::Id:
-                aEncoder.Encode(dev->GetBatChargeLevel());
-                break;
-            case PowerSource::Attributes::Order::Id:
-                aEncoder.Encode(dev->GetOrder());
-                break;
-            case PowerSource::Attributes::Status::Id:
-                aEncoder.Encode(dev->GetStatus());
-                break;
-            case PowerSource::Attributes::Description::Id:
-                aEncoder.Encode(chip::CharSpan(dev->GetDescription().c_str(), dev->GetDescription().size()));
-                break;
-            case PowerSource::Attributes::EndpointList::Id: {
-                std::vector<chip::EndpointId> & list = dev->GetEndpointList();
-                DataModel::List<EndpointId> dm_list(chip::Span<chip::EndpointId>(list.data(), list.size()));
-                aEncoder.Encode(dm_list);
-                break;
-            }
-            case PowerSource::Attributes::ClusterRevision::Id:
-                aEncoder.Encode(ZCL_POWER_SOURCE_CLUSTER_REVISION);
-                break;
-            case PowerSource::Attributes::FeatureMap::Id:
-                aEncoder.Encode(dev->GetFeatureMap());
-                break;
-
-            case PowerSource::Attributes::BatReplacementNeeded::Id:
-                aEncoder.Encode(false);
-                break;
-            case PowerSource::Attributes::BatReplaceability::Id:
-                aEncoder.Encode(PowerSource::BatReplaceabilityEnum::kNotReplaceable);
-                break;
-            default:
-                return CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute);
-            }
-        }
-        return CHIP_NO_ERROR;
-    }
-};
-
-BridgedPowerSourceAttrAccess gPowerAttrAccess;
 
 Protocols::InteractionModel::Status emberAfExternalAttributeWriteCallback(EndpointId endpoint, ClusterId clusterId,
                                                                           const EmberAfAttributeMetadata * attributeMetadata,
@@ -821,15 +642,15 @@ void * bridge_polling_thread(void * context)
                 AddDeviceEndpoint(&Light2, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
                                   Span<DataVersion>(gLight2DataVersions), 1);
 #else
-                AddDeviceEndpoint(&Light2, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
-                                  Span<DataVersion>(gLight2DataVersions), ""_span, 1);
+                // AddDeviceEndpoint(&Light2, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                                  // Span<DataVersion>(gLight2DataVersions), ""_span, 1);
 #endif
                 light2_added = true;
             }
             else if (ch == '4' && light1_added == true)
             {
                 // TC-BR-2 step 4, Remove Light 1
-                RemoveDeviceEndpoint(&Light1);
+                // RemoveDeviceEndpoint(&Light1);
                 light1_added = false;
             }
             if (ch == '5' && light1_added == false)
@@ -839,8 +660,8 @@ void * bridge_polling_thread(void * context)
                 AddDeviceEndpoint(&Light2, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
                                   Span<DataVersion>(gLight2DataVersions), 1);
 #else
-                AddDeviceEndpoint(&Light1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
-                                  Span<DataVersion>(gLight1DataVersions), ""_span, 1);
+                // AddDeviceEndpoint(&Light1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                                  // Span<DataVersion>(gLight1DataVersions), ""_span, 1);
 #endif
                 light1_added = true;
             }
@@ -849,11 +670,11 @@ void * bridge_polling_thread(void * context)
                 // TC-BR-3 step 1b, rename lights
                 if (light1_added)
                 {
-                    Light1.SetName("Light 1b");
+                    // Light1.SetName("Light 1b");
                 }
                 if (light2_added)
                 {
-                    Light2.SetName("Light 2b");
+                    // Light2.SetName("Light 2b");
                 }
             }
             if (ch == 'c')
@@ -861,79 +682,14 @@ void * bridge_polling_thread(void * context)
                 // TC-BR-3 step 2c, change the state of the lights
                 if (light1_added)
                 {
-                    Light1.Toggle();
+                    // Light1.Toggle();
                 }
                 if (light2_added)
                 {
-                    Light2.Toggle();
+                    // Light2.Toggle();
                 }
             }
-            if (ch == 't')
-            {
-                // TC-BR-4 step 1g, change the state of the temperature sensors
-                TempSensor1.SetMeasuredValue(static_cast<int16_t>(TempSensor1.GetMeasuredValue() + oneDegree));
-                TempSensor2.SetMeasuredValue(static_cast<int16_t>(TempSensor2.GetMeasuredValue() + oneDegree));
-                ComposedTempSensor1.SetMeasuredValue(static_cast<int16_t>(ComposedTempSensor1.GetMeasuredValue() + oneDegree));
-                ComposedTempSensor2.SetMeasuredValue(static_cast<int16_t>(ComposedTempSensor2.GetMeasuredValue() + oneDegree));
-            }
 
-            // Commands used for the actions cluster test plan.
-            if (ch == 'r')
-            {
-                // TC-ACT-2.2 step 2c, rename "Room 1"
-                room1.setName("Room 1 renamed");
-                ActionLight1.SetLocation(room1.getName());
-                ActionLight2.SetLocation(room1.getName());
-            }
-            if (ch == 'f')
-            {
-                // TC-ACT-2.2 step 2f, move "Action Light 3" from "Room 2" to "Room 1"
-                ActionLight3.SetLocation(room1.getName());
-            }
-            if (ch == 'i')
-            {
-                // TC-ACT-2.2 step 2i, remove "Room 2" (make it not visible in the endpoint list), do not remove the lights
-                room2.setIsVisible(false);
-            }
-            if (ch == 'l')
-            {
-                // TC-ACT-2.2 step 2l, add a new "Zone 3" and add "Action Light 2" to the new zone
-                room3.setIsVisible(true);
-                ActionLight2.SetZone("Zone 3");
-            }
-            if (ch == 'm')
-            {
-                // TC-ACT-2.2 step 3c, rename "Turn on Room 1 lights"
-                action1.setName("Turn On Room 1");
-            }
-            if (ch == 'n')
-            {
-                // TC-ACT-2.2 step 3f, remove "Turn on Room 2 lights"
-                action2.setIsVisible(false);
-            }
-            if (ch == 'o')
-            {
-                // TC-ACT-2.2 step 3i, add "Turn off Room 1 renamed lights"
-                action3.setIsVisible(true);
-            }
-
-            // Commands used for the Bridged Device Basic Information test plan
-            if (ch == 'u')
-            {
-                // TC-BRBINFO-2.2 step 2 "Set reachable to false"
-                TempSensor1.SetReachable(false);
-            }
-            if (ch == 'v')
-            {
-                // TC-BRBINFO-2.2 step 2 "Set reachable to true"
-                TempSensor1.SetReachable(true);
-            }
-            if (ch == 'w')
-            {
-                // TC-BRBINFO-3.2 step 3
-                uint32_t configVersion = Light1.GetConfigurationVersion() + 1;
-                Light1.SetConfigurationVersion(configVersion);
-            }
             continue;
         }
 
@@ -950,15 +706,6 @@ void ApplicationInit()
     memset(gDevices, 0, sizeof(gDevices));
 
     // Setup Mock Devices
-    Light1.SetReachable(true);
-    Light2.SetReachable(true);
-    Light1.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
-    Light2.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
-
-    TempSensor1.SetReachable(true);
-    TempSensor2.SetReachable(true);
-    TempSensor1.SetChangeCallback(&HandleDeviceTempSensorStatusChanged);
-    TempSensor2.SetChangeCallback(&HandleDeviceTempSensorStatusChanged);
 
     // Setup devices for action cluster tests
     ActionLight1.SetReachable(true);
@@ -969,15 +716,6 @@ void ApplicationInit()
     ActionLight2.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight3.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight4.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
-
-    gComposedDevice.SetReachable(true);
-    ComposedTempSensor1.SetReachable(true);
-    ComposedTempSensor2.SetReachable(true);
-    ComposedPowerSource.SetReachable(true);
-    ComposedPowerSource.SetBatChargeLevel(58);
-    ComposedTempSensor1.SetChangeCallback(&HandleDeviceTempSensorStatusChanged);
-    ComposedTempSensor2.SetChangeCallback(&HandleDeviceTempSensorStatusChanged);
-    ComposedPowerSource.SetChangeCallback(&HandleDevicePowerSourceStatusChanged);
 
     // Set starting endpoint id where dynamic endpoints will be assigned, which
     // will be the next consecutive endpoint id after the last fixed endpoint.
@@ -991,24 +729,6 @@ void ApplicationInit()
 
     // Add light 1 -> will be mapped to ZCL endpoints 3
 #if !CHIP_CONFIG_USE_ENDPOINT_UNIQUE_ID
-    AddDeviceEndpoint(&Light1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
-                      Span<DataVersion>(gLight1DataVersions), 1);
-
-    // Add Temperature Sensor devices --> will be mapped to endpoints 4,5
-    AddDeviceEndpoint(&TempSensor1, &bridgedTempSensorEndpoint, Span<const EmberAfDeviceType>(gBridgedTempSensorDeviceTypes),
-                      Span<DataVersion>(gTempSensor1DataVersions), 1);
-    AddDeviceEndpoint(&TempSensor2, &bridgedTempSensorEndpoint, Span<const EmberAfDeviceType>(gBridgedTempSensorDeviceTypes),
-                      Span<DataVersion>(gTempSensor2DataVersions), 1);
-
-    // Add composed Device with two temperature sensors and a power source
-    AddDeviceEndpoint(&gComposedDevice, &bridgedComposedDeviceEndpoint, Span<const EmberAfDeviceType>(gBridgedComposedDeviceTypes),
-                      Span<DataVersion>(gComposedDeviceDataVersions), 1);
-    AddDeviceEndpoint(&ComposedTempSensor1, &bridgedTempSensorEndpoint,
-                      Span<const EmberAfDeviceType>(gComposedTempSensorDeviceTypes),
-                      Span<DataVersion>(gComposedTempSensor1DataVersions), gComposedDevice.GetEndpointId());
-    AddDeviceEndpoint(&ComposedTempSensor2, &bridgedTempSensorEndpoint,
-                      Span<const EmberAfDeviceType>(gComposedTempSensorDeviceTypes),
-                      Span<DataVersion>(gComposedTempSensor2DataVersions), gComposedDevice.GetEndpointId());
 
     // Add 4 lights for the Action Clusters tests
     AddDeviceEndpoint(&ActionLight1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
@@ -1020,26 +740,6 @@ void ApplicationInit()
     AddDeviceEndpoint(&ActionLight4, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
                       Span<DataVersion>(gActionLight4DataVersions), 1);
 #else
-    AddDeviceEndpoint(&Light1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
-                      Span<DataVersion>(gLight1DataVersions), ""_span, 1);
-
-    // Add Temperature Sensor devices --> will be mapped to endpoints 4,5
-    AddDeviceEndpoint(&TempSensor1, &bridgedTempSensorEndpoint, Span<const EmberAfDeviceType>(gBridgedTempSensorDeviceTypes),
-                      Span<DataVersion>(gTempSensor1DataVersions), ""_span, 1);
-    AddDeviceEndpoint(&TempSensor2, &bridgedTempSensorEndpoint, Span<const EmberAfDeviceType>(gBridgedTempSensorDeviceTypes),
-                      Span<DataVersion>(gTempSensor2DataVersions), ""_span, 1);
-
-    // Add composed Device with two temperature sensors and a power source
-    AddDeviceEndpoint(&gComposedDevice, &bridgedComposedDeviceEndpoint, Span<const EmberAfDeviceType>(gBridgedComposedDeviceTypes),
-                      Span<DataVersion>(gComposedDeviceDataVersions), ""_span, 1);
-    AddDeviceEndpoint(&ComposedTempSensor1, &bridgedTempSensorEndpoint,
-                      Span<const EmberAfDeviceType>(gComposedTempSensorDeviceTypes),
-                      Span<DataVersion>(gComposedTempSensor1DataVersions), "AABBCCDDEEFFGGHHIIJJKKLLMMNNOO01"_span,
-                      gComposedDevice.GetEndpointId());
-    AddDeviceEndpoint(&ComposedTempSensor2, &bridgedTempSensorEndpoint,
-                      Span<const EmberAfDeviceType>(gComposedTempSensorDeviceTypes),
-                      Span<DataVersion>(gComposedTempSensor2DataVersions), "AABBCCDDEEFFGGHHIIJJKKLLMMNNOO02"_span,
-                      gComposedDevice.GetEndpointId());
 
     // Add 4 lights for the Action Clusters tests
     AddDeviceEndpoint(&ActionLight1, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
@@ -1052,23 +752,8 @@ void ApplicationInit()
                       Span<DataVersion>(gActionLight4DataVersions), ""_span, 1);
 #endif
 
-    // Because the power source is on the same endpoint as the composed device, it needs to be explicitly added
-    gDevices[CHIP_DEVICE_CONFIG_DYNAMIC_ENDPOINT_COUNT] = &ComposedPowerSource;
     // This provides power for the composed endpoint
     std::vector<chip::EndpointId> endpointList;
-    endpointList.push_back(gComposedDevice.GetEndpointId());
-    endpointList.push_back(ComposedTempSensor1.GetEndpointId());
-    endpointList.push_back(ComposedTempSensor2.GetEndpointId());
-    ComposedPowerSource.SetEndpointList(endpointList);
-    ComposedPowerSource.SetEndpointId(gComposedDevice.GetEndpointId());
-
-    gRooms.push_back(&room1);
-    gRooms.push_back(&room2);
-    gRooms.push_back(&room3);
-
-    gActions.push_back(&action1);
-    gActions.push_back(&action2);
-    gActions.push_back(&action3);
 
     {
         pthread_t poll_thread;
@@ -1088,7 +773,6 @@ void ApplicationInit()
         sChipNamedPipeCommands.Stop();
     }
 
-    AttributeAccessInterfaceRegistry::Instance().Register(&gPowerAttrAccess);
 }
 
 void ApplicationShutdown() {}
@@ -1143,8 +827,8 @@ void BridgeAppCommandHandler::HandleCommand(intptr_t context)
 
     if (name == "SimulateConfigurationVersionChange")
     {
-        uint32_t configVersion = Light1.GetConfigurationVersion() + 1;
-        Light1.SetConfigurationVersion(configVersion);
+        // uint32_t configVersion = Light1.GetConfigurationVersion() + 1;
+        // Light1.SetConfigurationVersion(configVersion);
     }
     else
     {
