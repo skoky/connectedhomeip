@@ -162844,7 +162844,7 @@ public:
         } else {
             params.transportOptions.audioStreamID = nil;
         }
-        params.transportOptions.endpointID = [NSNumber numberWithUnsignedShort:mRequest.transportOptions.endpointID];
+        params.transportOptions.tlsEndpointID = [NSNumber numberWithUnsignedShort:mRequest.transportOptions.TLSEndpointID];
         params.transportOptions.url = [[NSString alloc] initWithBytes:mRequest.transportOptions.url.data() length:mRequest.transportOptions.url.size() encoding:NSUTF8StringEncoding];
         params.transportOptions.triggerOptions = [MTRPushAVStreamTransportClusterTransportTriggerOptionsStruct new];
         params.transportOptions.triggerOptions.triggerType = [NSNumber numberWithUnsignedChar:chip::to_underlying(mRequest.transportOptions.triggerOptions.triggerType)];
@@ -163070,7 +163070,7 @@ public:
         } else {
             params.transportOptions.audioStreamID = nil;
         }
-        params.transportOptions.endpointID = [NSNumber numberWithUnsignedShort:mRequest.transportOptions.endpointID];
+        params.transportOptions.tlsEndpointID = [NSNumber numberWithUnsignedShort:mRequest.transportOptions.TLSEndpointID];
         params.transportOptions.url = [[NSString alloc] initWithBytes:mRequest.transportOptions.url.data() length:mRequest.transportOptions.url.size() encoding:NSUTF8StringEncoding];
         params.transportOptions.triggerOptions = [MTRPushAVStreamTransportClusterTransportTriggerOptionsStruct new];
         params.transportOptions.triggerOptions.triggerType = [NSNumber numberWithUnsignedChar:chip::to_underlying(mRequest.transportOptions.triggerOptions.triggerType)];
