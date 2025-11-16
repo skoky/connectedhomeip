@@ -333,7 +333,7 @@ void CallReportingCallback(intptr_t closure)
 void ScheduleReportingCallback(Device * dev, ClusterId cluster, AttributeId attribute)
 {
     auto * path = Platform::New<app::ConcreteAttributePath>(dev->GetEndpointId(), cluster, attribute);
-    PlatformMgr().ScheduleWork(CallReportingCallback, reinterpret_cast<intptr_t>(path));
+    TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(CallReportingCallback, reinterpret_cast<intptr_t>(path));
 }
 } // anonymous namespace
 
@@ -377,12 +377,12 @@ Protocols::InteractionModel::Status HandleReadBridgedDeviceBasicAttribute(Device
     else if ((attributeId == NodeLabel::Id) && (maxReadLength == 32))
     {
         MutableByteSpan zclNameSpan(buffer, maxReadLength);
-        MakeZclCharString(zclNameSpan, dev->GetName());
+        TEMPORARY_RETURN_IGNORED MakeZclCharString(zclNameSpan, dev->GetName());
     }
     else if ((attributeId == UniqueID::Id) && (maxReadLength == 32))
     {
         MutableByteSpan zclUniqueIdSpan(buffer, maxReadLength);
-        MakeZclCharString(zclUniqueIdSpan, dev->GetUniqueId());
+        TEMPORARY_RETURN_IGNORED MakeZclCharString(zclUniqueIdSpan, dev->GetUniqueId());
     }
     else if ((attributeId == ConfigurationVersion::Id) && (maxReadLength == 4))
     {
@@ -572,7 +572,7 @@ void runOnOffRoomAction(Room * room, bool actionOn, EndpointId endpointId, uint1
     {
         Actions::Events::StateChanged::Type event{ actionID, invokeID, Actions::ActionStateEnum::kActive };
         EventNumber eventNumber;
-        chip::app::LogEvent(event, endpointId, eventNumber);
+        TEMPORARY_RETURN_IGNORED chip::app::LogEvent(event, endpointId, eventNumber);
     }
 
     // Check and run the action for ActionLight1 - ActionLight4
@@ -597,7 +597,7 @@ void runOnOffRoomAction(Room * room, bool actionOn, EndpointId endpointId, uint1
     {
         Actions::Events::StateChanged::Type event{ actionID, invokeID, Actions::ActionStateEnum::kInactive };
         EventNumber eventNumber;
-        chip::app::LogEvent(event, endpointId, eventNumber);
+        TEMPORARY_RETURN_IGNORED chip::app::LogEvent(event, endpointId, eventNumber);
     }
 }
 
@@ -770,7 +770,7 @@ void ApplicationInit()
     if ((!path.empty()) and (sChipNamedPipeCommands.Start(path, &sBridgeCommandDelegate) != CHIP_NO_ERROR))
     {
         ChipLogError(NotSpecified, "Failed to start CHIP NamedPipeCommands");
-        sChipNamedPipeCommands.Stop();
+        TEMPORARY_RETURN_IGNORED sChipNamedPipeCommands.Stop();
     }
 
 }
@@ -849,5 +849,6 @@ void BridgeCommandDelegate::OnEventCommandReceived(const char * json)
         return;
     }
 
-    chip::DeviceLayer::PlatformMgr().ScheduleWork(BridgeAppCommandHandler::HandleCommand, reinterpret_cast<intptr_t>(handler));
+    TEMPORARY_RETURN_IGNORED chip::DeviceLayer::PlatformMgr().ScheduleWork(BridgeAppCommandHandler::HandleCommand,
+                                                                           reinterpret_cast<intptr_t>(handler));
 }
