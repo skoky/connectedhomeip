@@ -172,10 +172,12 @@ DataVersion gActionLight2DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight3DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight4DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 
-DeviceOnOff ActionLight1("Nahoru", "Room 1");
-DeviceOnOff ActionLight2("Dolu", "Room 1");
+DeviceOnOff ActionLight1("Hlavu nahoru", "Room 1");
+DeviceOnOff ActionLight2("Hlavu dolu", "Room 1");
 DeviceOnOff ActionLight3("Postel nahoru", "Room 1");
 DeviceOnOff ActionLight4("Postel dolu", "Room 1");
+DeviceOnOff ActionLight3("Nohy nahoru", "Room 1");
+DeviceOnOff ActionLight4("Nohy dolu", "Room 1");
 
 
 } // namespace
