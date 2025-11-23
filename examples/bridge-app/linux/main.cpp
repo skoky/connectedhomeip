@@ -171,6 +171,8 @@ DataVersion gActionLight1DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight2DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight3DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 DataVersion gActionLight4DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
+DataVersion gActionLight5DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
+DataVersion gActionLight6DataVersions[MATTER_ARRAY_SIZE(bridgedLightClusters)];
 
 DeviceOnOff ActionLight1("Hlavu nahoru", "Room 1");
 DeviceOnOff ActionLight2("Hlavu dolu", "Room 1");
@@ -594,6 +596,14 @@ void runOnOffRoomAction(Room * room, bool actionOn, EndpointId endpointId, uint1
     {
         ActionLight4.SetOnOff(actionOn);
     }
+    if (room->getName().compare(ActionLight5.GetLocation()) == 0)
+    {
+        ActionLight5.SetOnOff(actionOn);
+    }
+    if (room->getName().compare(ActionLight6.GetLocation()) == 0)
+    {
+        ActionLight6.SetOnOff(actionOn);
+    }
 
     if (hasInvokeID)
     {
@@ -714,10 +724,14 @@ void ApplicationInit()
     ActionLight2.SetReachable(true);
     ActionLight3.SetReachable(true);
     ActionLight4.SetReachable(true);
+    ActionLight5.SetReachable(true);
+    ActionLight6.SetReachable(true);
     ActionLight1.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight2.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight3.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
     ActionLight4.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
+    ActionLight5.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
+    ActionLight6.SetChangeCallback(&HandleDeviceOnOffStatusChanged);
 
     // Set starting endpoint id where dynamic endpoints will be assigned, which
     // will be the next consecutive endpoint id after the last fixed endpoint.
@@ -741,6 +755,10 @@ void ApplicationInit()
                       Span<DataVersion>(gActionLight3DataVersions), 1);
     AddDeviceEndpoint(&ActionLight4, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
                       Span<DataVersion>(gActionLight4DataVersions), 1);
+    AddDeviceEndpoint(&ActionLight5, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                      Span<DataVersion>(gActionLight5DataVersions), 1);
+    AddDeviceEndpoint(&ActionLight6, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                      Span<DataVersion>(gActionLight6DataVersions), 1);
 #else
 
     // Add 4 lights for the Action Clusters tests
@@ -752,6 +770,10 @@ void ApplicationInit()
                       Span<DataVersion>(gActionLight3DataVersions), ""_span, 1);
     AddDeviceEndpoint(&ActionLight4, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
                       Span<DataVersion>(gActionLight4DataVersions), ""_span, 1);
+    AddDeviceEndpoint(&ActionLight5, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                      Span<DataVersion>(gActionLight5DataVersions), ""_span, 1);
+    AddDeviceEndpoint(&ActionLight6, &bridgedLightEndpoint, Span<const EmberAfDeviceType>(gBridgedOnOffDeviceTypes),
+                      Span<DataVersion>(gActionLight6DataVersions), ""_span, 1);
 #endif
 
     // This provides power for the composed endpoint
