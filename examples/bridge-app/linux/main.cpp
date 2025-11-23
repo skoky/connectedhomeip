@@ -176,8 +176,8 @@ DeviceOnOff ActionLight1("Hlavu nahoru", "Room 1");
 DeviceOnOff ActionLight2("Hlavu dolu", "Room 1");
 DeviceOnOff ActionLight3("Postel nahoru", "Room 1");
 DeviceOnOff ActionLight4("Postel dolu", "Room 1");
-DeviceOnOff ActionLight3("Nohy nahoru", "Room 1");
-DeviceOnOff ActionLight4("Nohy dolu", "Room 1");
+DeviceOnOff ActionLight5("Nohy nahoru", "Room 1");
+DeviceOnOff ActionLight6("Nohy dolu", "Room 1");
 
 
 } // namespace
