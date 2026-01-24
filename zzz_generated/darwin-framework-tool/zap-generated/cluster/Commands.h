@@ -63938,8 +63938,7 @@ public:
 | * JoinGroup                                                         |   0x00 |
 | * LeaveGroup                                                        |   0x01 |
 | * UpdateGroupKey                                                    |   0x03 |
-| * ExpireGracePeriod                                                 |   0x04 |
-| * ConfigureAuxiliaryACL                                             |   0x05 |
+| * ConfigureAuxiliaryACL                                             |   0x04 |
 |------------------------------------------------------------------------------|
 | Attributes:                                                         |        |
 | * Membership                                                        | 0x0000 |
@@ -63970,16 +63969,16 @@ public:
         AddArgument("Endpoints", &mComplex_Endpoints);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        AddArgument("KeyID", 0, UINT32_MAX, &mRequest.keyID);
+        AddArgument("KeySetID", 0, UINT16_MAX, &mRequest.keySetID);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("Key", &mRequest.key);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        AddArgument("GracePeriod", 0, UINT32_MAX, &mRequest.gracePeriod);
+        AddArgument("UseAuxiliaryACL", 0, 1, &mRequest.useAuxiliaryACL);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        AddArgument("UseAuxiliaryACL", 0, 1, &mRequest.useAuxiliaryACL);
+        AddArgument("ReplaceEndpoints", 0, 1, &mRequest.replaceEndpoints);
 #endif // MTR_ENABLE_PROVISIONAL
         ClusterCommand::AddArguments();
     }
@@ -64010,7 +64009,7 @@ public:
         }
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        params.keyID = [NSNumber numberWithUnsignedInt:mRequest.keyID];
+        params.keySetID = [NSNumber numberWithUnsignedShort:mRequest.keySetID];
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         if (mRequest.key.HasValue()) {
@@ -64020,17 +64019,17 @@ public:
         }
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        if (mRequest.gracePeriod.HasValue()) {
-            params.gracePeriod = [NSNumber numberWithUnsignedInt:mRequest.gracePeriod.Value()];
-        } else {
-            params.gracePeriod = nil;
-        }
-#endif // MTR_ENABLE_PROVISIONAL
-#if MTR_ENABLE_PROVISIONAL
         if (mRequest.useAuxiliaryACL.HasValue()) {
             params.useAuxiliaryACL = [NSNumber numberWithBool:mRequest.useAuxiliaryACL.Value()];
         } else {
             params.useAuxiliaryACL = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.replaceEndpoints.HasValue()) {
+            params.replaceEndpoints = [NSNumber numberWithBool:mRequest.replaceEndpoints.Value()];
+        } else {
+            params.replaceEndpoints = nil;
         }
 #endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
@@ -64150,13 +64149,10 @@ public:
         AddArgument("GroupID", 0, UINT16_MAX, &mRequest.groupID);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        AddArgument("KeyID", 0, UINT32_MAX, &mRequest.keyID);
+        AddArgument("KeySetID", 0, UINT16_MAX, &mRequest.keySetID);
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("Key", &mRequest.key);
-#endif // MTR_ENABLE_PROVISIONAL
-#if MTR_ENABLE_PROVISIONAL
-        AddArgument("GracePeriod", 0, UINT32_MAX, &mRequest.gracePeriod);
 #endif // MTR_ENABLE_PROVISIONAL
         ClusterCommand::AddArguments();
     }
@@ -64176,20 +64172,13 @@ public:
         params.groupID = [NSNumber numberWithUnsignedShort:mRequest.groupID];
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        params.keyID = [NSNumber numberWithUnsignedInt:mRequest.keyID];
+        params.keySetID = [NSNumber numberWithUnsignedShort:mRequest.keySetID];
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         if (mRequest.key.HasValue()) {
             params.key = [NSData dataWithBytes:mRequest.key.Value().data() length:mRequest.key.Value().size()];
         } else {
             params.key = nil;
-        }
-#endif // MTR_ENABLE_PROVISIONAL
-#if MTR_ENABLE_PROVISIONAL
-        if (mRequest.gracePeriod.HasValue()) {
-            params.gracePeriod = [NSNumber numberWithUnsignedInt:mRequest.gracePeriod.Value()];
-        } else {
-            params.gracePeriod = nil;
         }
 #endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
@@ -64213,59 +64202,6 @@ public:
 
 private:
     chip::app::Clusters::Groupcast::Commands::UpdateGroupKey::Type mRequest;
-};
-
-#endif // MTR_ENABLE_PROVISIONAL
-#if MTR_ENABLE_PROVISIONAL
-/*
- * Command ExpireGracePeriod
- */
-class GroupcastExpireGracePeriod : public ClusterCommand {
-public:
-    GroupcastExpireGracePeriod()
-        : ClusterCommand("expire-grace-period")
-    {
-#if MTR_ENABLE_PROVISIONAL
-        AddArgument("GroupID", 0, UINT16_MAX, &mRequest.groupID);
-#endif // MTR_ENABLE_PROVISIONAL
-        ClusterCommand::AddArguments();
-    }
-
-    CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
-    {
-        constexpr chip::ClusterId clusterId = chip::app::Clusters::Groupcast::Id;
-        constexpr chip::CommandId commandId = chip::app::Clusters::Groupcast::Commands::ExpireGracePeriod::Id;
-
-        ChipLogProgress(chipTool, "Sending cluster (0x%08" PRIX32 ") command (0x%08" PRIX32 ") on endpoint %u", clusterId, commandId, endpointId);
-
-        dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL);
-        __auto_type * cluster = [[MTRBaseClusterGroupcast alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
-        __auto_type * params = [[MTRGroupcastClusterExpireGracePeriodParams alloc] init];
-        params.timedInvokeTimeoutMs = mTimedInteractionTimeoutMs.HasValue() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
-#if MTR_ENABLE_PROVISIONAL
-        params.groupID = [NSNumber numberWithUnsignedShort:mRequest.groupID];
-#endif // MTR_ENABLE_PROVISIONAL
-        uint16_t repeatCount = mRepeatCount.ValueOr(1);
-        uint16_t __block responsesNeeded = repeatCount;
-        while (repeatCount--) {
-            [cluster expireGracePeriodWithParams:params completion:
-                    ^(NSError * _Nullable error) {
-                        responsesNeeded--;
-                        if (error != nil) {
-                            mError = error;
-                            LogNSError("Error", error);
-                            TEMPORARY_RETURN_IGNORED RemoteDataModelLogger::LogCommandErrorAsJSON(@(endpointId), @(clusterId), @(commandId), error);
-                        }
-                        if (responsesNeeded == 0) {
-                            SetCommandExitStatus(mError);
-                        }
-                    }];
-        }
-        return CHIP_NO_ERROR;
-    }
-
-private:
-    chip::app::Clusters::Groupcast::Commands::ExpireGracePeriod::Type mRequest;
 };
 
 #endif // MTR_ENABLE_PROVISIONAL
@@ -164594,6 +164530,8 @@ public:
         : ClusterCommand("solicit-offer")
         , mComplex_ICEServers(&mRequest.ICEServers)
         , mComplex_SFrameConfig(&mRequest.SFrameConfig)
+        , mComplex_VideoStreams(&mRequest.videoStreams)
+        , mComplex_AudioStreams(&mRequest.audioStreams)
     {
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("StreamUsage", 0, UINT8_MAX, &mRequest.streamUsage);
@@ -164618,6 +164556,12 @@ public:
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("SFrameConfig", &mComplex_SFrameConfig);
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        AddArgument("VideoStreams", &mComplex_VideoStreams);
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        AddArgument("AudioStreams", &mComplex_AudioStreams);
 #endif // MTR_ENABLE_PROVISIONAL
         ClusterCommand::AddArguments();
     }
@@ -164724,6 +164668,36 @@ public:
             params.sFrameConfig = nil;
         }
 #endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.videoStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_1 = [NSMutableArray new];
+                for (auto & entry_1 : mRequest.videoStreams.Value()) {
+                    NSNumber * newElement_1;
+                    newElement_1 = [NSNumber numberWithUnsignedShort:entry_1];
+                    [array_1 addObject:newElement_1];
+                }
+                params.videoStreams = array_1;
+            }
+        } else {
+            params.videoStreams = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.audioStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_1 = [NSMutableArray new];
+                for (auto & entry_1 : mRequest.audioStreams.Value()) {
+                    NSNumber * newElement_1;
+                    newElement_1 = [NSNumber numberWithUnsignedShort:entry_1];
+                    [array_1 addObject:newElement_1];
+                }
+                params.audioStreams = array_1;
+            }
+        } else {
+            params.audioStreams = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
         uint16_t __block responsesNeeded = repeatCount;
         while (repeatCount--) {
@@ -164753,6 +164727,8 @@ private:
     chip::app::Clusters::WebRTCTransportProvider::Commands::SolicitOffer::Type mRequest;
     TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const chip::app::Clusters::Globals::Structs::ICEServerStruct::Type>>> mComplex_ICEServers;
     TypedComplexArgument<chip::Optional<chip::app::Clusters::WebRTCTransportProvider::Structs::SFrameStruct::Type>> mComplex_SFrameConfig;
+    TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const uint16_t>>> mComplex_VideoStreams;
+    TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const uint16_t>>> mComplex_AudioStreams;
 };
 
 #endif // MTR_ENABLE_PROVISIONAL
@@ -164766,6 +164742,8 @@ public:
         : ClusterCommand("provide-offer")
         , mComplex_ICEServers(&mRequest.ICEServers)
         , mComplex_SFrameConfig(&mRequest.SFrameConfig)
+        , mComplex_VideoStreams(&mRequest.videoStreams)
+        , mComplex_AudioStreams(&mRequest.audioStreams)
     {
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("WebRTCSessionID", 0, UINT16_MAX, &mRequest.webRTCSessionID);
@@ -164796,6 +164774,12 @@ public:
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
         AddArgument("SFrameConfig", &mComplex_SFrameConfig);
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        AddArgument("VideoStreams", &mComplex_VideoStreams);
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        AddArgument("AudioStreams", &mComplex_AudioStreams);
 #endif // MTR_ENABLE_PROVISIONAL
         ClusterCommand::AddArguments();
     }
@@ -164912,6 +164896,36 @@ public:
             params.sFrameConfig = nil;
         }
 #endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.videoStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_1 = [NSMutableArray new];
+                for (auto & entry_1 : mRequest.videoStreams.Value()) {
+                    NSNumber * newElement_1;
+                    newElement_1 = [NSNumber numberWithUnsignedShort:entry_1];
+                    [array_1 addObject:newElement_1];
+                }
+                params.videoStreams = array_1;
+            }
+        } else {
+            params.videoStreams = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.audioStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_1 = [NSMutableArray new];
+                for (auto & entry_1 : mRequest.audioStreams.Value()) {
+                    NSNumber * newElement_1;
+                    newElement_1 = [NSNumber numberWithUnsignedShort:entry_1];
+                    [array_1 addObject:newElement_1];
+                }
+                params.audioStreams = array_1;
+            }
+        } else {
+            params.audioStreams = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
         uint16_t __block responsesNeeded = repeatCount;
         while (repeatCount--) {
@@ -164941,6 +164955,8 @@ private:
     chip::app::Clusters::WebRTCTransportProvider::Commands::ProvideOffer::Type mRequest;
     TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const chip::app::Clusters::Globals::Structs::ICEServerStruct::Type>>> mComplex_ICEServers;
     TypedComplexArgument<chip::Optional<chip::app::Clusters::WebRTCTransportProvider::Structs::SFrameStruct::Type>> mComplex_SFrameConfig;
+    TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const uint16_t>>> mComplex_VideoStreams;
+    TypedComplexArgument<chip::Optional<chip::app::DataModel::List<const uint16_t>>> mComplex_AudioStreams;
 };
 
 #endif // MTR_ENABLE_PROVISIONAL
@@ -166667,6 +166683,36 @@ public:
         } else {
             params.transportOptions.expiryTime = nil;
         }
+        if (mRequest.transportOptions.videoStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_2 = [NSMutableArray new];
+                for (auto & entry_2 : mRequest.transportOptions.videoStreams.Value()) {
+                    MTRPushAVStreamTransportClusterVideoStreamStruct * newElement_2;
+                    newElement_2 = [MTRPushAVStreamTransportClusterVideoStreamStruct new];
+                    newElement_2.videoStreamName = [[NSString alloc] initWithBytes:entry_2.videoStreamName.data() length:entry_2.videoStreamName.size() encoding:NSUTF8StringEncoding];
+                    newElement_2.videoStreamID = [NSNumber numberWithUnsignedShort:entry_2.videoStreamID];
+                    [array_2 addObject:newElement_2];
+                }
+                params.transportOptions.videoStreams = array_2;
+            }
+        } else {
+            params.transportOptions.videoStreams = nil;
+        }
+        if (mRequest.transportOptions.audioStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_2 = [NSMutableArray new];
+                for (auto & entry_2 : mRequest.transportOptions.audioStreams.Value()) {
+                    MTRPushAVStreamTransportClusterAudioStreamStruct * newElement_2;
+                    newElement_2 = [MTRPushAVStreamTransportClusterAudioStreamStruct new];
+                    newElement_2.audioStreamName = [[NSString alloc] initWithBytes:entry_2.audioStreamName.data() length:entry_2.audioStreamName.size() encoding:NSUTF8StringEncoding];
+                    newElement_2.audioStreamID = [NSNumber numberWithUnsignedShort:entry_2.audioStreamID];
+                    [array_2 addObject:newElement_2];
+                }
+                params.transportOptions.audioStreams = array_2;
+            }
+        } else {
+            params.transportOptions.audioStreams = nil;
+        }
 #endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
         uint16_t __block responsesNeeded = repeatCount;
@@ -166892,6 +166938,36 @@ public:
             params.transportOptions.expiryTime = [NSNumber numberWithUnsignedInt:mRequest.transportOptions.expiryTime.Value()];
         } else {
             params.transportOptions.expiryTime = nil;
+        }
+        if (mRequest.transportOptions.videoStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_2 = [NSMutableArray new];
+                for (auto & entry_2 : mRequest.transportOptions.videoStreams.Value()) {
+                    MTRPushAVStreamTransportClusterVideoStreamStruct * newElement_2;
+                    newElement_2 = [MTRPushAVStreamTransportClusterVideoStreamStruct new];
+                    newElement_2.videoStreamName = [[NSString alloc] initWithBytes:entry_2.videoStreamName.data() length:entry_2.videoStreamName.size() encoding:NSUTF8StringEncoding];
+                    newElement_2.videoStreamID = [NSNumber numberWithUnsignedShort:entry_2.videoStreamID];
+                    [array_2 addObject:newElement_2];
+                }
+                params.transportOptions.videoStreams = array_2;
+            }
+        } else {
+            params.transportOptions.videoStreams = nil;
+        }
+        if (mRequest.transportOptions.audioStreams.HasValue()) {
+            { // Scope for our temporary variables
+                auto * array_2 = [NSMutableArray new];
+                for (auto & entry_2 : mRequest.transportOptions.audioStreams.Value()) {
+                    MTRPushAVStreamTransportClusterAudioStreamStruct * newElement_2;
+                    newElement_2 = [MTRPushAVStreamTransportClusterAudioStreamStruct new];
+                    newElement_2.audioStreamName = [[NSString alloc] initWithBytes:entry_2.audioStreamName.data() length:entry_2.audioStreamName.size() encoding:NSUTF8StringEncoding];
+                    newElement_2.audioStreamID = [NSNumber numberWithUnsignedShort:entry_2.audioStreamID];
+                    [array_2 addObject:newElement_2];
+                }
+                params.transportOptions.audioStreams = array_2;
+            }
+        } else {
+            params.transportOptions.audioStreams = nil;
         }
 #endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
@@ -167749,6 +167825,7 @@ public:
 | * ClusterRevision                                                   | 0xFFFD |
 |------------------------------------------------------------------------------|
 | Events:                                                             |        |
+| * ChimeStartedPlaying                                               | 0x0000 |
 \*----------------------------------------------------------------------------*/
 
 #if MTR_ENABLE_PROVISIONAL
@@ -167760,6 +167837,9 @@ public:
     ChimePlayChimeSound()
         : ClusterCommand("play-chime-sound")
     {
+#if MTR_ENABLE_PROVISIONAL
+        AddArgument("ChimeID", 0, UINT8_MAX, &mRequest.chimeID);
+#endif // MTR_ENABLE_PROVISIONAL
         ClusterCommand::AddArguments();
     }
 
@@ -167774,6 +167854,13 @@ public:
         __auto_type * cluster = [[MTRBaseClusterChime alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
         __auto_type * params = [[MTRChimeClusterPlayChimeSoundParams alloc] init];
         params.timedInvokeTimeoutMs = mTimedInteractionTimeoutMs.HasValue() ? [NSNumber numberWithUnsignedShort:mTimedInteractionTimeoutMs.Value()] : nil;
+#if MTR_ENABLE_PROVISIONAL
+        if (mRequest.chimeID.HasValue()) {
+            params.chimeID = [NSNumber numberWithUnsignedChar:mRequest.chimeID.Value()];
+        } else {
+            params.chimeID = nil;
+        }
+#endif // MTR_ENABLE_PROVISIONAL
         uint16_t repeatCount = mRepeatCount.ValueOr(1);
         uint16_t __block responsesNeeded = repeatCount;
         while (repeatCount--) {
@@ -167794,6 +167881,7 @@ public:
     }
 
 private:
+    chip::app::Clusters::Chime::Commands::PlayChimeSound::Type mRequest;
 };
 
 #endif // MTR_ENABLE_PROVISIONAL
@@ -197120,9 +197208,6 @@ void registerClusterGroupcast(Commands & commands)
         make_unique<GroupcastUpdateGroupKey>(), //
 #endif // MTR_ENABLE_PROVISIONAL
 #if MTR_ENABLE_PROVISIONAL
-        make_unique<GroupcastExpireGracePeriod>(), //
-#endif // MTR_ENABLE_PROVISIONAL
-#if MTR_ENABLE_PROVISIONAL
         make_unique<GroupcastConfigureAuxiliaryACL>(), //
 #endif // MTR_ENABLE_PROVISIONAL
         make_unique<ReadAttribute>(Id), //
@@ -201229,6 +201314,8 @@ void registerClusterChime(Commands & commands)
         make_unique<ReadChimeClusterRevision>(), //
         make_unique<SubscribeAttributeChimeClusterRevision>(), //
 #endif // MTR_ENABLE_PROVISIONAL
+        make_unique<ReadEvent>(Id), //
+        make_unique<SubscribeEvent>(Id), //
     };
 
     commands.RegisterCluster(clusterName, clusterCommands);
